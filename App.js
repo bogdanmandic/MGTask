@@ -67,17 +67,19 @@ export default class App extends Component {
           .then(() => {
             console.log(global.allUsers)
             if (newUsers.lastChanges !== global.allUsers.lastChanges) {
-              Alert.alert(
-                'Update available',
-                'App needs to be synced',
-                [
-                  { text: 'Update', onPress: getNewJson },
-                  { text: 'Cancel', onPress: () => {} }
-                ]
-              )
+              if (this.state.isConnected) {
+                // Alert.alert(
+                //   'Update available',
+                //   'App needs to be synced',
+                //   [
+                //     { text: 'Update', onPress: getNewJson },
+                //     { text: 'Cancel', onPress: () => {} }
+                //   ]
+                // )
+                getNewJson();
+              }
               console.log(newUsers.lastChanges)
               console.log(global.allUsers.lastChanges)
-
             }
           })
           .then(() => resolve())

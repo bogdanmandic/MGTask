@@ -65,7 +65,7 @@ export default class App extends Component {
           .then(() =>  RNFB.fs.readFile(pathToAllUsersJson, 'utf8'))
           .then(res => global.allUsers = JSON.parse(res))
           .then(() => {
-            if (newUsers.lastChanges === global.allUsers.lastChanges) {
+            if (newUsers.lastChanges !== global.allUsers.lastChanges) {
               console.log(newUsers.lastChanges)
               console.log(global.allUsers.lastChanges)
               getNewJson();
@@ -99,10 +99,10 @@ export default class App extends Component {
     return (
       <View style={{ height: 120 }}>
         <Header headerText='Authentication' />
-        <LoginForm />
+        {/* <LoginForm /> */}
         {/* <ForgotPassword /> */}
         {/* <ChangePassword /> */}
-        {/* <RegisterUser /> */}
+        <RegisterUser />
       </View>
     )
   }

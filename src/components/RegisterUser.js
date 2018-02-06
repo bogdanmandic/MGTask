@@ -31,7 +31,7 @@ export default class RegisterUser extends Component {
       formData.append("firstname", firstname);
       formData.append("surname", surname);
       formData.append("email", email);
-      formData.append("password", password);
+      formData.append("password", hex_md5(password));
       console.log(formData);
 
       fetch('http://www.cduppy.com/salescms/?a=ajax&do=registerUser&languageId=1&projectId=5&token=1234567890', {
@@ -39,14 +39,15 @@ export default class RegisterUser extends Component {
         body: formData
       })
       .then(response => {
+        console.log(response)
         res = JSON.parse(response._bodyText);
         res.hasOwnProperty("userId") ?
-          this.setState({ error: `You have successfully registered an account!`, firstname, surname, email, password: '' }) :
-          this.setState({ error: 'Wrong credentials from Internet!' })
+          this.setState({ error: `You have successfully registered an account!`, firstname: '', surname: '', email: '', password: '' }) :
+          this.setState({ error: res.resultText.toUpperCase() })
       })
         .catch(error => console.log(error));
 
-      console.log(`${firstname} ${surname} => ${email} : ${password}`);
+      console.log(`${firstname} ${surname} => ${email} : ${hex_md5(password)}`);
     }
   }
 

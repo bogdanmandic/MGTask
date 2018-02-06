@@ -74,7 +74,7 @@ export default class LoginForm extends Component {
 
     if (this.state.isConnected === false) {
       user = users.find(({ email, password }) => {
-        return email === this.state.email && password === hex_md5(hashPass)
+        return email === this.state.email && password === hashPass
       });
       if (user === undefined) {
         this.setState({ error: 'Wrong credentials!' })
@@ -84,7 +84,7 @@ export default class LoginForm extends Component {
     } else {
       let formData = new FormData();
       formData.append("email", this.state.email);
-      formData.append("password", hex_md5(hashPass));
+      formData.append("password", hashPass);
       console.log(formData);
       fetch('http://www.cduppy.com/salescms/?a=ajax&do=loginUser&languageId=1&projectId=5&token=1234567890', {
         method: 'POST',

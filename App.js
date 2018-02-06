@@ -99,10 +99,10 @@ export default class App extends Component {
     return (
       <View style={{ height: 120 }}>
         <Header headerText='Authentication' />
-        {/* <LoginForm /> */}
+        <LoginForm />
         {/* <ForgotPassword /> */}
         {/* <ChangePassword /> */}
-        <RegisterUser />
+        {/* <RegisterUser /> */}
       </View>
     )
   }

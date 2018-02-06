@@ -32,7 +32,14 @@ export default class ChangePassword extends Component {
         method: 'POST',
         body: formData
       })
-        .then(res => console.log(res))
+      .then(response => {
+        console.log(response)
+        res = JSON.parse(response._bodyText);
+        res.hasOwnProperty("userId") ?
+          this.setState({ error: res.resultText.toUpperCase(), email: '', oldpassword: '', newpassword: '' }) :
+          this.setState({ error: res.resultText.toUpperCase() })
+      })
+        .then()
         .catch(error => console.log(error));
       this.setState({ error: 'Evo usera' });
     } else {

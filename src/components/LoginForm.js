@@ -1,74 +1,125 @@
 import React, { Component } from 'react';
 import { Button, Card, CardSection, Input, Spinner } from './common';
-import { Text } from 'react-native';
-import firebase from 'firebase';
+import { Text, Alert, NetInfo, AsyncStorage } from 'react-native';
 import axios from 'axios';
+import { hex_md5 } from '../../helpers/md5';
+import RNFB from 'react-native-fetch-blob';
+
+
 
 
 export default class LoginForm extends Component {
-  state = {
-    email: '',
-    password: '',
-    error: '',
-    isLoading: false
-  };
-
-  onButtonPress() {
-    this.setState({ error: '', isLoading: true })
-    const { email, password } = this.state;
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(this.onLoginSuccess.bind(this))
-      .catch(() => {
-        firebase.auth().createUserWithEmailAndPassword(email, password)
-          .then(this.onLoginSuccess.bind(this))
-          .catch(this.onLoginFail.bind(this));
-      })
-    /*
-    fetch('http://localhost:3000/v1/auth/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type' : 'application/json'
-      },
-      body: JSON.stringify({
-        username, 
-        password
-      })
-    })
-      .then(res => console.log(res))
-      .catch(err => console.log(err.message));
-  }
-  */
-  }
-
-  onLoginFail() {
-    this.setState({
-      error: 'Authentication Failed!',
-      isLoading: false
-    });
-  }
-
-  onLoginSuccess() {
-    this.setState({ 
+  constructor(props) {
+    super(props);
+    this.state = {
       email: '',
       password: '',
-      isLoading: false,
       error: '',
+      isChecked: true,
+      isConnected: false,
+      userId: '',
+    };
+  }
+
+  componentWillMount() {
+    NetInfo.isConnected.fetch()
+      .then(res => {
+        this.setState(() => ({ isConnected: res }));
+        return Promise.resolve();
+      })
+      .then(() => { console.log(this.state.isConnected) })
+      .catch(err => console.log(err));
+  }
+
+
+  renderAuth() {
+    if (this.state.userId.length > 0) {
+      return (
+        <Button onPress={this.logOut.bind(this)} >
+          Log Out
+        </Button>
+      );
+    } else {
+      return (
+        <Button
+          onPress={this.logIn.bind(this)}
+          disabled={this.state.isChecked}
+        >
+          Log In
+        </Button>
+      );
+    }
+  }
+  /*
+    setLoggedUser(userId) {
+      console.log('usao u setloggeduser')
+      AsyncStorage.setItem('@userId', userId);
+      console.log('Success write to AsyncStorage');
+    }
+  
+    async getLoggedUser() {
+      try {
+        let userId = await AsyncStorage.getItem('@userId');
+        alert(key);
+      } catch (error) {
+        alert(error);
+      }
+    }
+  */
+
+  logIn() {
+    // console.log(global.allUsers.users);
+    const hashPass = hex_md5(this.state.password);
+    const users = global.allUsers.users;
+
+    if (this.state.isConnected === false) {
+      user = users.find(({ email, password }) => {
+        return email === this.state.email && password === hex_md5(hashPass)
+      });
+      if (user === undefined) {
+        this.setState({ error: 'Wrong credentials!' })
+      } else {
+        this.setState({ userId: user.userId, error: 'Welcome to our app from locale, userId ' + user.userId });
+      }
+    } else {
+      let formData = new FormData();
+      formData.append("email", this.state.email);
+      formData.append("password", hex_md5(hashPass));
+      console.log(formData);
+      fetch('http://www.cduppy.com/salescms/?a=ajax&do=loginUser&languageId=1&projectId=5&token=1234567890', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => {
+          res = JSON.parse(response._bodyText);
+          res.hasOwnProperty("userId") ?
+            this.setState({ userId: res.userId, error: `Welcome to our app from Internet user ${res.userId}.` }) :
+            this.setState({ error: 'Wrong credentials from Internet!' })
+        })
+        .catch(error => this.setState({ error }));
+    }
+  }
+
+  logOut() {
+    this.setState({
+      userId: '',
+      error: 'You successfully logged out!',
+      email: '',
+      password: ''
     });
   }
 
-  renderButton() {
-    if (this.state.isLoading) {
-      return <Spinner size="small" />
+
+  enableLogin() {
+    const { email, password } = this.state;
+    if (email !== '' && password !== '') {
+      this.setState({ isChecked: false });
+    } else if (email === '' || password === '') {
+      this.setState({ isChecked: true });
+    } else {
+      this.setState({ isChecked: true })
     }
-
-    return (
-      <Button onPress={this.onButtonPress.bind(this)}>
-        Log In
-      </Button>
-    );
   }
-
 
   render() {
     return (
@@ -76,10 +127,9 @@ export default class LoginForm extends Component {
         <CardSection>
           <Input
             label="Email"
-            placeholder="user@gmail.com"
+            placeholder="your_email@email.com"
             value={this.state.email}
-            onChangeText={email => this.setState({ email })}
-
+            onChangeText={email => { this.enableLogin(); this.setState({ email }) }}
           />
         </CardSection>
 
@@ -88,7 +138,7 @@ export default class LoginForm extends Component {
             placeholder="password"
             label="Password"
             value={this.state.password}
-            onChangeText={password => this.setState({ password })}
+            onChangeText={password => { this.enableLogin(); this.setState({ password }) }}
             secureTextEntry
           />
         </CardSection>
@@ -96,7 +146,7 @@ export default class LoginForm extends Component {
         <Text style={styles.errorTextStyle}>{this.state.error}</Text>
 
         <CardSection>
-          {this.renderButton()}
+          {this.renderAuth()}
         </CardSection>
       </Card>
     );

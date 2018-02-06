@@ -48,7 +48,7 @@ export default class App extends Component {
         RNFB.config({
           path: pathToAllUsersJson
         })
-        .fetch('GET', allUsersJsonURL)
+          .fetch('GET', allUsersJsonURL)
           .then(res => console.log(res.path()))
           .then(() => resolve())
           .catch(error => console.log(error))
@@ -60,15 +60,24 @@ export default class App extends Component {
         let newUsers = {};
         fetch(allUsersJsonURL)
           .then(res => res.json())
-          .then(data => {  newUsers = data })
+          .then(data => { newUsers = data })
           .then(() => console.log(newUsers))
-          .then(() =>  RNFB.fs.readFile(pathToAllUsersJson, 'utf8'))
+          .then(() => RNFB.fs.readFile(pathToAllUsersJson, 'utf8'))
           .then(res => global.allUsers = JSON.parse(res))
           .then(() => {
+            console.log(global.allUsers)
             if (newUsers.lastChanges !== global.allUsers.lastChanges) {
+              Alert.alert(
+                'Update available',
+                'App needs to be synced',
+                [
+                  { text: 'Update', onPress: getNewJson },
+                  { text: 'Cancel', onPress: () => {} }
+                ]
+              )
               console.log(newUsers.lastChanges)
               console.log(global.allUsers.lastChanges)
-              getNewJson();
+
             }
           })
           .then(() => resolve())
@@ -77,7 +86,7 @@ export default class App extends Component {
     }
     asd = () => {
       RNFB.fs.readFile(pathToAllUsersJson, 'utf8')
-      .then(res => console.log(res))
+        .then(res => console.log(res))
     }
     ifJsonExists();
     // asd();
@@ -91,7 +100,7 @@ export default class App extends Component {
       })
       .then(() => this.getAllUsers())
       .catch(err => console.log(err));
-    
+
   }
 
 
@@ -99,9 +108,9 @@ export default class App extends Component {
     return (
       <View style={{ height: 120 }}>
         <Header headerText='Authentication' />
-        <LoginForm />
+        {/* <LoginForm /> */}
+        <ChangePassword />
         {/* <ForgotPassword /> */}
-        {/* <ChangePassword /> */}
         {/* <RegisterUser /> */}
       </View>
     )

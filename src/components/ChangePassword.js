@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { Button, Card, CardSection, Input, Spinner } from './common';
-import md5 from '../../helpers/md5';
+import { hex_md5 } from '../../helpers/md5';
 
 // Marko mora da sredi za konekciju sa netom da l cemo preko props ili ponovo willMount
 
@@ -18,7 +18,7 @@ export default class ChangePassword extends Component {
 
   changePassword() {
     const users = global.allUsers.users;
-    let hashPass = md5.hex_md5(this.state.oldpassword);
+    let hashPass = hex_md5(this.state.oldpassword);
     user = users.find(({ email, password }) => {
       return email === this.state.email && password === hashPass
     });
@@ -26,25 +26,23 @@ export default class ChangePassword extends Component {
       const formData = new FormData();
       formData.append("email", this.state.email);
       formData.append("oldpassword", hashPass);
-      formData.append("newpassword", md5.hex_md5(this.state.newpassword));
+      formData.append("newpassword", hex_md5(this.state.newpassword));
 
       fetch('http://www.cduppy.com/salescms/?a=ajax&do=passwordUser&languageId=1&projectId=5&token=1234567890', {
         method: 'POST',
         body: formData
       })
-      .then(response => {
-        console.log(response)
-        res = JSON.parse(response._bodyText);
-        res.hasOwnProperty("userId") ?
-          this.setState({ error: res.resultText.toUpperCase(), email: '', oldpassword: '', newpassword: '' }) :
-          this.setState({ error: res.resultText.toUpperCase() })
-      })
+        .then(response => {
+          console.log(response)
+          res = JSON.parse(response._bodyText);
+          res.hasOwnProperty("userId") ?
+            this.setState({ error: res.resultText.toUpperCase(), email: '', oldpassword: '', newpassword: '' }) :
+            this.setState({ error: res.resultText.toUpperCase() })
+        })
         .then()
         .catch(error => console.log(error));
-      this.setState({ error: 'Evo usera' });
     } else {
       this.setState({ error: 'User not found!' });
-
     }
   }
 
